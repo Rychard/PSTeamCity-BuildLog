@@ -1,0 +1,40 @@
+// Source: https://gist.github.com/Xainey/8b18eec27bf76f7dcd9c
+{
+    "version": "0.1.0",
+    "command": "${env.windir}\\sysnative\\windowspowershell\\v1.0\\PowerShell.exe",
+    "isShellCommand": true,
+    "showOutput": "always",
+    "args": [
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "Write-Host 'Invoking Pester...'; Invoke-Pester -PesterOption @{IncludeVSCodeMarker=$true};",
+        "Invoke-Command { Write-Host \"Completed all tasks in task runner: $($args[0])\" } -args"
+    ],
+    "tasks": [
+        {
+            "taskName": "Pester",
+            "isTestCommand": true,
+            "problemMatcher": [
+                {
+                    "owner": "powershell",
+                    "fileLocation": [
+                        "absolute"
+                    ],
+                    "severity": "error",
+                    "pattern": [
+                        {
+                            "regexp": "^\\s*(\\[-\\]\\s*.*?)(\\d+)ms\\s*$",
+                            "message": 1
+                        },
+                        {
+                            "regexp": "^\\s+at\\s+[^,]+,\\s*(.*?):\\s+line\\s+(\\d+)$",
+                            "file": 1,
+                            "line": 2
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

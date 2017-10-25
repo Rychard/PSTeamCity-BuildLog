@@ -1,0 +1,10 @@
+@{
+    ExcludeRules=@(
+        'PSAvoidUsingConvertToSecureStringWithPlainText',
+        'PSAvoidUsingPlainTextForPassword',
+        'PSAvoidUsingUsernameAndPasswordParams',
+        'PSAvoidUsingWriteHost',
+        'PSPossibleIncorrectComparisonWithNull',
+        'PSUseShouldProcessForStateChangingFunctions'
+    )
+}

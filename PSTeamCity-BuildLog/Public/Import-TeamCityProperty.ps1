@@ -28,9 +28,7 @@ Function Import-TeamCityProperty {
         [Switch] $Force
     )
 
-    $runningInTeamCity = (![String]::IsNullOrEmpty($Env:TEAMCITY_VERSION))
-
-    if ($runningInTeamCity -or $Force.IsPresent) {
+    if ((Test-TeamCity) -or $Force.IsPresent) {
         Write-Verbose "Loading TeamCity properties from file: ${File}"
         $File = (Resolve-Path $File).Path
 

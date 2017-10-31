@@ -15,27 +15,36 @@ Function New-TeamCityBlock {
         [String]$Name,
 
         [Parameter(Mandatory=$false, Position=1)]
-        [ValidateNotNullOrEmpty()]
-        [String]$Description
+        [String]$Description,
+
+        [Parameter(Mandatory=$false, Position=2)]
+        [Switch]$Quiet
     )
 
     if (Test-TeamCity) {
         $escapedName = $Name | Get-TeamCityEscapedString
 
-        if($Description -ne $null) {
+        if([String]::IsNullOrWhiteSpace($Description)) {
+            $formatted = "##teamcity[blockOpened name='$($escapedName)']"
+        }
+        else {
             $escapedDescription = $Description | Get-TeamCityEscapedString
             $formatted = "##teamcity[blockOpened name='$($escapedName)' description='$($escapedDescription)']"
         }
-        else {
-            $formatted = "##teamcity[blockOpened name='$($escapedName)']"
-        }
         
-        Write-Host $formatted
+        if ($Quiet.IsPresent) {
+            Write-Output $formatted
+        }
+        else {
+            Write-Host $formatted
+        }
     }
     
     # In the interest of semantics, we return the name parameter to the pipeline.
     # This allows the return value to be stored in a variable.
     # The variable can be piped to Remove-TeamCityBlock to close the block.
     # This may be easier to read than typing it out multiple times in your scripts.
-    Write-Output $Name
+    if (-not $Quiet.IsPresent) {
+        Write-Output $Name
+    }
 }

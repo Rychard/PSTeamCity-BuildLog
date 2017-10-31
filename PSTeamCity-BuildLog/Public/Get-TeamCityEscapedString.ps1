@@ -27,5 +27,5 @@ Function Get-TeamCityEscapedString {
         $result = $result -replace [Regex]::Escape("]"),  "|]"
 
         Write-Output $result
-    }   
+    }
 }

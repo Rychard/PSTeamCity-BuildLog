@@ -9,7 +9,7 @@ Function Test-TeamCity {
     [CmdletBinding()]
     Param ()
 
-    if (Test-Path env:TEAMCITY_VERSION) {
+    if (Test-Path Env:TEAMCITY_VERSION) {
         Write-Verbose "Currently executing on TeamCity Build Agent" 
         Write-Output $true
     }

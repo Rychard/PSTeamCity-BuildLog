@@ -25,7 +25,8 @@ Function New-TeamCityBlock {
         if($Description -ne $null) {
             $escapedDescription = $Description | Get-TeamCityEscapedString
             $formatted = "##teamcity[blockOpened name='$($escapedName)' description='$($escapedDescription)']"
-        } else {
+        }
+        else {
             $formatted = "##teamcity[blockOpened name='$($escapedName)']"
         }
         

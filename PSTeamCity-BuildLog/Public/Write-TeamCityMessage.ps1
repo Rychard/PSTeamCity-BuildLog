@@ -11,14 +11,15 @@ Function Write-TeamCityMessage {
     Param (
         [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
         [ValidateNotNullOrEmpty()]
-        [String]$Message
+        [String]$Message,
+
+        [Parameter(Mandatory=$false, Position=1)]
+        [Switch]$Force
     )
 
-    if (Test-TeamCity) {
+    if ((Test-TeamCity) -or $Force.IsPresent) {
         $escaped = $Message | Get-TeamCityEscapedString
         $formatted = "##teamcity[message text='$($escaped)']"
-        Write-Host $formatted
-    } else {
-        Write-Host $Message
+        Write-Output $formatted
     }
 }

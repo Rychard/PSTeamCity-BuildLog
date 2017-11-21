@@ -8,15 +8,25 @@
     https://confluence.jetbrains.com/display/TCD9/Build+Script+Interaction+with+TeamCity
 #>
 Function Remove-TeamCityBlock {
-    [CmdletBinding()]
+    [CmdletBinding(SupportsShouldProcess=$true, ConfirmImpact='Low')]
     Param (
         [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
-        [String]$Name
+        [String]$Name,
+
+        [Parameter(Mandatory=$false, Position=1)]
+        [Switch]$Force
     )
 
-    if (Test-TeamCity) {
+    if(-not $Name) {
+        return
+    }
+
+    if ((Test-TeamCity) -or $Force.IsPresent) {
         $escapedName = $Name | Get-TeamCityEscapedString
         $message = "##teamcity[blockClosed name='$($escapedName)']"
-        Write-Host $message
+
+        if ($PSCmdlet.ShouldProcess($escapedName, 'Remove TeamCity block')) {
+            Write-Output $message
+        }
     }
 }

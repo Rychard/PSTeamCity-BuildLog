@@ -26,14 +26,19 @@ Function Write-TeamCityBuildProblem {
 
         [Parameter(Mandatory=$true, Position=1)]
         [ValidateNotNullOrEmpty()]
-        [String]$Description
+        [String]$Description,
+
+        [Parameter(Mandatory=$false, Position=2)]
+        [Switch]$Force
     )
 
-    if (Test-TeamCity) {
+    $formatted = $Description
+
+    if ((Test-TeamCity) -or $Force.IsPresent) {
         $escapedIdentity = $Identity | Get-TeamCityEscapedString
         $escapedDescription = $Description | Get-TeamCityEscapedString
 
         $formatted = "##teamcity[buildProblem identity='$($escapedIdentity)' description='$($escapedDescription)']"
-        Write-Host $formatted
-    }    
+        Write-Output $formatted
+    }
 }

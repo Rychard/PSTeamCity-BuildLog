@@ -22,6 +22,9 @@ Function Import-TeamCityProperty {
         [String]$File = $Env:TEAMCITY_BUILD_PROPERTIES_FILE + ".xml",
 
         [Parameter()]
+        [Switch] $Recurse,
+
+        [Parameter()]
         [Switch] $Quiet,
 
         [Parameter()]
@@ -42,24 +45,33 @@ Function Import-TeamCityProperty {
         $buildPropertiesXml.XmlResolver = $null 
         $buildPropertiesXml.Load($File)
 
+        $result = @{}
+
         $nodes = $buildPropertiesXml.SelectNodes("//entry")
+
         $nodes | ForEach-Object {
             $key = $_.key
+            if(-not ([bool]($_.PSobject.Properties.name -match '#text'))) { return }
             $value = $_.'#text'
-            $key = $Prefix + $key
+            $prefixedKey = $Prefix + $key
 
-            Write-Verbose "TeamCity Variable: ${key}=${value}"
-
-             # Load variables into the parent scope
-             # https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.utility/set-variable?view=powershell-5.1
-            Set-Variable -Name $key -Value $value -Scope 1
-
-            if (-not ($Quiet.IsPresent)) {
-                $result = @{ 
-                    "$key" = $value;
-                }
-                Write-Output $result
+            if(-not $result.ContainsKey($prefixedKey)) {
+                $result.Add($prefixedKey, $value)
+                Set-Variable -Name $prefixedKey -Value $value
             }
+
+            if($Recurse.IsPresent -and $key.Contains('properties.file') -and (Test-Path -Path "${value}.xml")) {
+                $props = (Import-TeamCityProperty -File "${value}.xml" -Prefix $Prefix -Force)
+                $props.GetEnumerator() | ForEach-Object {
+                    if(-not $result.ContainsKey($_.Key)) {
+                        $result.Add($_.Key, $_.Value)
+                    }
+                }
+            }
+        }
+
+        if(-not $Quiet.IsPresent) {
+            Write-Output $result
         }
     }
 }
